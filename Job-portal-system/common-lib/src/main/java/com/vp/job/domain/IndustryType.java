@@ -1,0 +1,24 @@
+package com.vp.job.domain;
+
+public enum IndustryType {
+
+    TECHNOLOGY,
+    FINANCE,
+    HEALTHCARE,
+    EDUCATION,
+    GOVERNMENT,
+    RETAIL,
+    MANUFACTURING,
+    SERVICES,
+    HOSPITALITY,
+    SPORTS,
+    ENTERTAINMENT,
+    CONSTRUCTION,
+    CONSULTING,
+    AGRICULTURE,
+    PHARMACEUTICAL,
+    HUMAN_RESOURCES,
+    MARKETING,
+    OTHERS
+
+}
