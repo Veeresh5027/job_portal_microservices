@@ -11,20 +11,20 @@ import java.util.List;
 
 public interface CompanyService {
 
-    CompanyResponse createCompany(Long ownerId, CompanyRequest companyRequest);
+    CompanyResponse createCompany(Long ownerId, CompanyRequest req);
 
     CompanyResponse getCompanyById(Long id);
 
     CompanyResponse getMyCompany(Long ownerId);
 
     List<CompanyResponse> getAllCompanies(CompanyType companyType, IndustryType industryType,
-                                          CompanyStatus status);
+                                          CompanyStatus companyStatus);
 
     CompanyResponse updateCompany(Long companyId, Long ownerId, CompanyRequest companyRequest);
 
     CompanyResponse verifyCompany(Long companyId);
 
-    void deleteCompany(Long companyId);
+    void deleteCompany(Long companyId, Long ownerId);
 
     CompanyResponse deactivateCompany(Long companyId);
 

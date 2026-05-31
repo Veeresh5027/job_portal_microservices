@@ -45,6 +45,9 @@ public class Company {
 
     private Integer foundedYear;
 
+    private String email;
+    private String phone;
+
     @Enumerated(EnumType.STRING)
     private CompanySize companySize;
 
@@ -57,13 +60,16 @@ public class Company {
     @Enumerated(EnumType.STRING)
     private CompanyStatus status;
 
+    private boolean isVerified = false;
+
     @Column(unique = true)
     private String registrationNumber;
 
     @Column(unique = true, nullable = false)
     private Long ownerId;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
     private List<SocialLink> socialLinks = new ArrayList<>();
 
     private Boolean active = true;

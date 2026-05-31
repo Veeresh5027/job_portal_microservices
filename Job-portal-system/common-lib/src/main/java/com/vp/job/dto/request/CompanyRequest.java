@@ -5,11 +5,15 @@ import com.vp.job.domain.CompanyType;
 import com.vp.job.domain.IndustryType;
 import com.vp.job.dto.response.SocialLinkResponse;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompanyRequest {
 
     @NotBlank(message = "Name is required")
