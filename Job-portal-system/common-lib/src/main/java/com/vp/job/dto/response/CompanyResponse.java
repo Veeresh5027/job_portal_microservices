@@ -4,12 +4,18 @@ import com.vp.job.domain.CompanySize;
 import com.vp.job.domain.CompanyStatus;
 import com.vp.job.domain.CompanyType;
 import com.vp.job.domain.IndustryType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompanyResponse {
 
     private Long id;
