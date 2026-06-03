@@ -1,6 +1,7 @@
 package com.vp.jobportal.service.impl;
 
 
+import com.vp.job.domain.JobStatus;
 import com.vp.job.dto.request.JobRequest;
 import com.vp.job.dto.response.CompanyResponse;
 import com.vp.job.dto.response.JobResponse;
@@ -10,10 +11,12 @@ import com.vp.jobportal.model.JobLocation;
 import com.vp.jobportal.model.SalaryRange;
 import com.vp.jobportal.payload.JobSearchRequest;
 import com.vp.jobportal.repository.JobRepository;
+import com.vp.jobportal.repository.JobSpecification;
 import com.vp.jobportal.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,6 +37,7 @@ public class JobServiceImpl implements JobService {
                 .responsibilities(req.getResponsibilities())
                 .benefits(req.getBenefits())
                 .companyId(companyId)
+                .employerId(employerId)
                 .location(buildLocation(req))
                 .salaryRange(buildSalaryRange(req))
                 .jobType(req.getJobType())
@@ -82,36 +86,87 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public List<JobResponse> getJobs(JobSearchRequest request) {
-        return List.of();
+        List<Job> jobs = jobRepository.findAll(JobSpecification.buildSpecification(request));
+        return jobs.stream().map(this::convertToResponse).toList();
     }
 
     @Override
     public List<JobResponse> getJobsByCompany(Long companyId) {
-        return List.of();
+        List<Job> jobs = jobRepository.findByCompanyId(companyId);
+        return jobs.stream().map(this::convertToResponse).toList();
     }
 
     @Override
     public JobResponse updateJob(Long jobId, Long employerId, JobRequest req) {
-        return null;
+        Job job = jobRepository.findById(jobId).orElseThrow(
+                ()-> new RuntimeException("Job not found")
+        );
+        assertEmployer(job, employerId);
+        job.setTitle(req.getTitle());
+        job.setDescription(req.getDescription());
+        job.setRequirements(req.getRequirements());
+        job.setResponsibilities(req.getResponsibilities());
+        job.setBenefits(req.getBenefits());
+        job.setLocation(buildLocation(req));
+        job.setSalaryRange(buildSalaryRange(req));
+        job.setJobType(req.getJobType());
+        job.setWorkMode(req.getWorkMode());
+        job.setExperienceLevel(req.getExperienceLevel());
+        job.setOpenings(req.getOpenings() != null ? req.getOpenings() : 1);
+        job.setApplicationDeadline(req.getApplicationDeadline());
+        job.setExpiresAt(req.getExpiresAt()); 
+        Job savedJob = jobRepository.save(job);
+        return convertToResponse(savedJob);
     }
 
     @Override
     public JobResponse publishJob(Long jobId, Long employerId) {
-        return null;
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+        assertEmployer(job, employerId);
+        if(job.getStatus() == JobStatus.CLOSED || job.getStatus() == JobStatus.EXPIRED){
+            throw new RuntimeException("Job is closed or expired");
+        }
+        job.setStatus(JobStatus.OPEN);
+        job.setPublishedAt(LocalDateTime.now());
+        job.setActive(true);
+        Job savedJob = jobRepository.save(job);
+        return convertToResponse(savedJob);
+    }
+
+    private void assertEmployer(Job job, Long employerId) {
+        if (!job.getEmployerId().equals(employerId)) {
+            throw new RuntimeException("Unauthorized");
+        }
     }
 
     @Override
     public JobResponse closeJob(Long jobId, Long employerId) {
-        return null;
+        Job job = jobRepository.findById(jobId).orElseThrow(
+                ()-> new RuntimeException("Job not found")
+        );
+        assertEmployer(job, employerId);
+
+        job.setStatus(JobStatus.CLOSED);
+        job.setClosedAt(LocalDateTime.now());
+        job.setActive(false);
+        Job savedJob = jobRepository.save(job);
+        return convertToResponse(savedJob);
     }
 
     @Override
     public void deleteJob(Long jobId, Long employerId) {
 
+        Job job = jobRepository.findById(jobId).orElseThrow(
+                ()-> new RuntimeException("Job not found")
+        );
+        assertEmployer(job, employerId);
+        jobRepository.delete(job);
+
     }
 
     @Override
     public List<JobResponse> getAllJobsAdmin() {
-        return List.of();
+        return jobRepository.findAll().stream().map(this::convertToResponse).toList();
     }
 }

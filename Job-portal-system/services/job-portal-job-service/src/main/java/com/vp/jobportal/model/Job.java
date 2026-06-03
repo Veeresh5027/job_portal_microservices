@@ -42,6 +42,9 @@ public class Job {
     @Column(name = "company_id", nullable = false)
     private Long companyId;
 
+    @Column(name = "employer_id", nullable = false)
+    private Long employerId;
+
   //  private JobCategory jobCategory;
     // private Set<JobSkill> skills;
     // private Set<JobTag> tags;

@@ -1,22 +1,25 @@
 package com.vp.jobportal.repository;
 
 import com.vp.job.domain.JobStatus;
-import com.vp.jobportal.model.Job;
 import com.vp.jobportal.payload.JobSearchRequest;
 import jakarta.persistence.criteria.Path;
-import org.springframework.data.jpa.domain.Specification;
+import lombok.*;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.criteria.Predicate;
 
 
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class JobSpecification {
 
-    private JobSpecification() {
-    }
 
-    public static Specification<Job> buildSpecification(JobSearchRequest req) {
+    public static Sort buildSpecification(JobSearchRequest req) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -53,6 +56,23 @@ public class JobSpecification {
                 ));
             }
 
-        }
+            if(req.getMinSalary() != null){
+                predicates.add(cb.greaterThanOrEqualTo(root.get("salary"), req.getMinSalary()));
+            }
+            if(req.getMaxSalary() != null){
+                predicates.add(cb.lessThanOrEqualTo(root.get("salary"), req.getMaxSalary()));
+            }
+
+            if(req.getMinOpenings() != null){
+                predicates.add(cb.greaterThanOrEqualTo(root.get("openings"), req.getMinOpenings()));
+            }
+            if(req.getMaxOpenings() != null){
+                predicates.add(cb.lessThanOrEqualTo(root.get("openings"), req.getMaxOpenings()));
+            }
+
+            //todo : filter tag skills
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 }
