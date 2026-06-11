@@ -35,6 +35,8 @@ public class JobCategory {
 
     private String iconUrl;
 
+    private Boolean active;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private JobCategory parent;
 
