@@ -14,6 +14,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Data
@@ -45,9 +46,14 @@ public class Job {
     @Column(name = "employer_id", nullable = false)
     private Long employerId;
 
-  //  private JobCategory jobCategory;
-    // private Set<JobSkill> skills;
-    // private Set<JobTag> tags;
+    @ManyToOne
+    private JobCategory jobCategory;
+
+    @ManyToMany
+    private Set<JobSkill> skills;
+
+    @ManyToMany
+    private Set<JobTag> tags;
 
     @Embedded
     private JobLocation location;

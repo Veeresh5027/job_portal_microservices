@@ -6,27 +6,44 @@ import com.vp.job.dto.request.JobRequest;
 import com.vp.job.dto.response.CompanyResponse;
 import com.vp.job.dto.response.JobResponse;
 import com.vp.jobportal.mapper.JobMapper;
-import com.vp.jobportal.model.Job;
-import com.vp.jobportal.model.JobLocation;
-import com.vp.jobportal.model.SalaryRange;
+import com.vp.jobportal.model.*;
 import com.vp.jobportal.payload.JobSearchRequest;
 import com.vp.jobportal.repository.JobRepository;
 import com.vp.jobportal.repository.JobSpecification;
+import com.vp.jobportal.service.JobCategoryService;
 import com.vp.jobportal.service.JobService;
+import com.vp.jobportal.service.JobSkillService;
+import com.vp.jobportal.service.JobTagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
+    private final JobCategoryService categoryService;
+    private final JobSkillService skillService;
+    private final JobTagService tagService;
 
     @Override
     public JobResponse createJob(Long employerId, JobRequest req) {
+
+        JobCategory category = categoryService.getJobCategoryEntityById(req.getCategoryId());
+
+        Set<JobSkill> skills = req.getSkillIds() != null?
+                skillService.getSkillByIds(req.getSkillIds())
+                : Collections.emptySet();
+
+        Set<JobTag> tags = req.getTagIds() != null?
+                tagService.getTagsByIds(req.getTagIds())
+                : Collections.emptySet();
+
 
         Long companyId = 1L;
 
@@ -38,6 +55,9 @@ public class JobServiceImpl implements JobService {
                 .benefits(req.getBenefits())
                 .companyId(companyId)
                 .employerId(employerId)
+                .jobCategory(category)
+                .skills(skills)
+                .tags(tags)
                 .location(buildLocation(req))
                 .salaryRange(buildSalaryRange(req))
                 .jobType(req.getJobType())
@@ -101,12 +121,27 @@ public class JobServiceImpl implements JobService {
         Job job = jobRepository.findById(jobId).orElseThrow(
                 ()-> new RuntimeException("Job not found")
         );
+
         assertEmployer(job, employerId);
+
+        JobCategory category = categoryService.getJobCategoryEntityById(req.getCategoryId());
+
+        Set<JobSkill> skills = req.getSkillIds() != null?
+                skillService.getSkillByIds(req.getSkillIds())
+                : Collections.emptySet();
+
+        Set<JobTag> tags = req.getTagIds() != null?
+                tagService.getTagsByIds(req.getTagIds())
+                : Collections.emptySet();
+
         job.setTitle(req.getTitle());
         job.setDescription(req.getDescription());
         job.setRequirements(req.getRequirements());
         job.setResponsibilities(req.getResponsibilities());
         job.setBenefits(req.getBenefits());
+        job.setJobCategory(category);
+        job.setSkills(skills);
+        job.setTags(tags);
         job.setLocation(buildLocation(req));
         job.setSalaryRange(buildSalaryRange(req));
         job.setJobType(req.getJobType());
